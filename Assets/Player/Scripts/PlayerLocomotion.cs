@@ -1,27 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class PlayerLocomotion : MonoBehaviour
 {
     PlayerInput inputActions;
-    InputAction move, look, fire;
+    InputAction move, look, jump;
 
     CharacterController characterController;
     public Transform cameraContainer;
 
     public float maxSpeed = 10f;
     public float jumpSpeed = 10f;
-    public float mouseSensitivity = 0.2f;
+    public float mouseSensitivity = 2f;
     public float gravity = 20.0f;
 
     Vector3 moveDirection = Vector3.zero;
+    float rotateX, rotateY;
+
     float speed = 6f;
     float lookUpClamp = -5f;
     float lookDownClamp = 20f;
     float rotateYaw, rotatePitch;
-    bool jump = false;
+    bool lift = false;
 
     private void Awake()
     {
@@ -30,12 +31,12 @@ public class PlayerLocomotion : MonoBehaviour
 
     void Start()
     {
-        Cursor.visible = false;
+        UnityEngine.Cursor.visible = false;
         characterController = GetComponent<CharacterController>();
 
         inputActions.Player.Move.Enable();
         inputActions.Player.Look.Enable();
-        inputActions.Player.Fire.Enable();
+        inputActions.Player.Jump.Enable();
     }
 
     void Update()
@@ -65,22 +66,22 @@ public class PlayerLocomotion : MonoBehaviour
         look = inputActions.Player.Look;
         look.Enable();
 
-        fire = inputActions.Player.Fire;
-        fire.Enable();
-        fire.performed += Fire;
+        jump = inputActions.Player.Jump;
+        jump.Enable();
+        jump.performed += Jump;
     }
 
     private void OnDisable()
     {
         move.Disable();
         look.Disable();
-        fire.Disable();
+        jump.Disable();
     }
 
-    private void Fire(InputAction.CallbackContext context)
+    private void Jump(InputAction.CallbackContext context)
     {
-        Debug.Log("Fire Button Pressed");
-        jump = true;
+        Debug.Log("Jump Button Pressed");
+        lift = true;
     }
 
     void Locomotion()
@@ -91,9 +92,9 @@ public class PlayerLocomotion : MonoBehaviour
             moveDirection = transform.TransformDirection(moveDirection);
             moveDirection *= speed;
 
-            if (jump)
+            if (lift)
             {
-                jump = false;
+                lift = false;
                 moveDirection.y = jumpSpeed;
             }
         }
@@ -104,14 +105,13 @@ public class PlayerLocomotion : MonoBehaviour
 
     void RotateAndLook()
     {
-        Vector2 lookInput = look.ReadValue<Vector2>();
+        rotateX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        rotateY -= Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        rotateYaw = lookInput.x * mouseSensitivity;
-        rotateYaw += cameraContainer.transform.localRotation.eulerAngles.y;
+        rotateY = Mathf.Clamp(rotateY, lookUpClamp, lookDownClamp);
 
-        rotatePitch -= lookInput.y * mouseSensitivity;
-        rotatePitch = Mathf.Clamp(rotatePitch, lookUpClamp, lookDownClamp);
+        transform.Rotate(0f, rotateX, 0f);
 
-        cameraContainer.transform.localRotation = Quaternion.Euler(rotatePitch, rotateYaw, 0f);
+        cameraContainer.transform.localRotation = Quaternion.Euler(rotateY, 0f, 0f);
     }
 }
