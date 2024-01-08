@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 public class PlayerLocomotion : MonoBehaviour
 {
     PlayerInput inputActions;
-    InputAction move, look, jump;
+    InputAction move, look, jump, fire;
 
     CharacterController characterController;
     public Transform cameraContainer;
@@ -37,6 +37,7 @@ public class PlayerLocomotion : MonoBehaviour
         inputActions.Player.Move.Enable();
         inputActions.Player.Look.Enable();
         inputActions.Player.Jump.Enable();
+        inputActions.Player.Fire.Enable();
     }
 
     void Update()
