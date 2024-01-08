@@ -53,7 +53,7 @@ public class EnemyController : MonoBehaviour
         transform.Translate(Vector3.left * moveSpeed * Time.deltaTime);
 
         // Change direction when reaching a certain point (e.g., a boundary)
-        if (transform.position.x <= -10)
+        if (transform.position.x <= 10)
         {
             transform.localScale = new Vector3(-1f, 1f, 1f); // Flip sprite
             isMoving = true;
